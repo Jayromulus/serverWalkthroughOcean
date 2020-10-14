@@ -3,6 +3,8 @@ const pizza = require('../models/pizza');
 const router = require('express').Router();
 const Pizza = require('../db').import('../models/pizza');
 
+const validateSession = require('../middleware/validate-session');
+
 router.get('/', (req, res) => {
   Pizza.findAll()
     .then(pizzas => res.status(200).json(pizzas))
@@ -11,7 +13,7 @@ router.get('/', (req, res) => {
     }));
 });
 
-router.post('/', (req, res) => {
+router.post('/', validateSession, (req, res) => {
   const pizzaFromRequest = {
     nameOfPizza: req.body.name,
     toppings: req.body.toppings,
@@ -34,13 +36,13 @@ router.get('/:name', (req, res) => {
 })
 
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateSession, (req, res) => {
   Pizza.update(req.body, { where: { id: req.params.id }})
     .then(pizza => res.status(200).json(pizza))
     .catch(err => res.status(500).json({ error:err }))
 })
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateSession, (req, res) => {
   Pizza.destroy({ where: { id: req.params.id } })
     .then(result => res.status(200).json(result))
     .catch(err => res.status(500).json({ error: err }))
